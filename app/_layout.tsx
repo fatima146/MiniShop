@@ -1,8 +1,9 @@
 import { Stack } from "expo-router";
 import { Provider } from "react-redux";
-import { QueryClientProvider } from "@tanstack/react-query";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { store } from "../src/store";
-import { queryClient } from "../src/lib/queryClient";
+
+const queryClient = new QueryClient();
 
 export default function RootLayout() {
   return (
