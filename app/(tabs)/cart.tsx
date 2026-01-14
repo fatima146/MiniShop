@@ -22,13 +22,19 @@ import {
 import { CartItem } from "../../src/features/cart/cartTypes";
 
 export default function CartScreen() {
+  // Router voor navigatie naar product detail
   const router = useRouter();
+
+  // Redux: haal theme kleuren op
   const theme = useAppSelector(selectTheme);
   const dispatch = useAppDispatch();
-  const cartItems = useAppSelector((state) => state.cart.items);
-  const totalItems = useAppSelector(selectTotalItems);
-  const subtotal = useAppSelector(selectSubtotal);
 
+  // Redux: haal cart data op
+  const cartItems = useAppSelector((state) => state.cart.items); // Alle items
+  const totalItems = useAppSelector(selectTotalItems); // Totaal aantal (selector)
+  const subtotal = useAppSelector(selectSubtotal); // Totaalprijs (selector)
+
+  // Render functie voor elk cart item
   const renderItem = ({ item }: { item: CartItem }) => (
     <View
       style={[
@@ -36,28 +42,39 @@ export default function CartScreen() {
         { backgroundColor: theme.surface, borderColor: theme.border },
       ]}
     >
+      {/* Klikbare afbeelding - gaat naar product detail */}
       <Pressable onPress={() => router.push(`/product/${item.id}`)}>
         <Image source={{ uri: item.thumbnail }} style={styles.image} />
       </Pressable>
+
       <View style={styles.info}>
+        {/* Klikbare titel - gaat naar product detail */}
         <Pressable onPress={() => router.push(`/product/${item.id}`)}>
           <Text style={[styles.title, { color: theme.text }]}>
             {item.title}
           </Text>
         </Pressable>
+
         <Text style={[styles.price, { color: theme.primary }]}>
           € {item.price}
         </Text>
+
+        {/* Quantity knoppen: - en + */}
         <View style={styles.actions}>
+          {/* Minus knop - verlaagt quantity of verwijdert als 1 */}
           <Pressable
             onPress={() => dispatch(decrementQuantity(item.id))}
             style={[styles.btn, { backgroundColor: theme.border }]}
           >
             <Text style={[styles.btnText, { color: theme.text }]}>-</Text>
           </Pressable>
+
+          {/* Huidige quantity */}
           <Text style={[styles.qty, { color: theme.text }]}>
             {item.quantity}
           </Text>
+
+          {/* Plus knop - verhoogt quantity */}
           <Pressable
             onPress={() => dispatch(incrementQuantity(item.id))}
             style={[styles.btn, { backgroundColor: theme.border }]}
@@ -66,12 +83,15 @@ export default function CartScreen() {
           </Pressable>
         </View>
       </View>
+
+      {/* Remove knop - verwijdert item volledig */}
       <Pressable onPress={() => dispatch(removeFromCart(item.id))}>
         <Text style={{ color: theme.error }}>Remove</Text>
       </Pressable>
     </View>
   );
 
+  // EMPTY STATE: als cart leeg is
   if (cartItems.length === 0) {
     return (
       <SafeAreaView
@@ -93,11 +113,13 @@ export default function CartScreen() {
     );
   }
 
+  // NORMAL STATE: cart heeft items
   return (
     <SafeAreaView
       style={[styles.container, { backgroundColor: theme.background }]}
-      edges={["top"]}
+      edges={["top"]} // Padding alleen bovenaan (voor notch/statusbar)
     >
+      {/* Header */}
       <View
         style={[
           styles.header,
@@ -106,6 +128,8 @@ export default function CartScreen() {
       >
         <Text style={[styles.headerTitle, { color: theme.text }]}>Cart</Text>
       </View>
+
+      {/* Summary kaart met totalen */}
       <View
         style={[
           styles.summary,
@@ -119,6 +143,8 @@ export default function CartScreen() {
           Subtotal: € {subtotal.toFixed(2)}
         </Text>
       </View>
+
+      {/* Lijst van cart items */}
       <FlatList
         data={cartItems}
         renderItem={renderItem}

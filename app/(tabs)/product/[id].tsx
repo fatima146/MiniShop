@@ -17,15 +17,23 @@ import { addToCart } from "../../../src/features/cart/cartSlice";
 import { toggleTheme } from "../../../src/features/theme/themeSlice";
 
 export default function ProductDetailScreen() {
+  // Haal product ID uit de URL (bijv. /product/5 → id = "5")
   const { id } = useLocalSearchParams();
   const router = useRouter();
+
+  // Redux: haal theme kleuren en mode op
   const theme = useAppSelector(selectTheme);
   const themeMode = useAppSelector((state) => state.theme.mode);
   const dispatch = useAppDispatch();
-  const { data: product, isLoading, error } = useProduct(Number(id));
-  const [added, setAdded] = useState(false);
-  const [imageOpen, setImageOpen] = useState(false);
 
+  // TanStack Query: haal product data op
+  const { data: product, isLoading, error } = useProduct(Number(id));
+
+  // Lokale state voor UI feedback
+  const [added, setAdded] = useState(false); // "Added!" feedback
+  const [imageOpen, setImageOpen] = useState(false); // Modal open/dicht
+
+  // Loading state
   if (isLoading) {
     return (
       <View style={[styles.center, { backgroundColor: theme.background }]}>
@@ -34,6 +42,7 @@ export default function ProductDetailScreen() {
     );
   }
 
+  // Error state
   if (error || !product) {
     return (
       <View style={[styles.center, { backgroundColor: theme.background }]}>
@@ -42,6 +51,7 @@ export default function ProductDetailScreen() {
     );
   }
 
+  // Voeg product toe aan cart + toon feedback
   const handleAddToCart = () => {
     dispatch(
       addToCart({
@@ -52,19 +62,20 @@ export default function ProductDetailScreen() {
       })
     );
     setAdded(true);
-    setTimeout(() => setAdded(false), 1500);
+    setTimeout(() => setAdded(false), 1500); // Reset na 1.5 sec
   };
 
   return (
     <>
       <View style={[styles.container, { backgroundColor: theme.background }]}>
-        {/* Header */}
+        {/* Header met back knop en theme toggle */}
         <View
           style={[
             styles.header,
             { backgroundColor: theme.surface, borderBottomColor: theme.border },
           ]}
         >
+          {/* Terug knop */}
           <Pressable onPress={() => router.back()} style={styles.headerBtn}>
             <Text style={[styles.headerBtnText, { color: theme.primary }]}>
               ← Back
@@ -73,6 +84,7 @@ export default function ProductDetailScreen() {
           <Text style={[styles.headerTitle, { color: theme.text }]}>
             Product
           </Text>
+          {/* Theme toggle knop */}
           <Pressable
             onPress={() => dispatch(toggleTheme())}
             style={styles.headerBtn}
@@ -84,6 +96,7 @@ export default function ProductDetailScreen() {
         </View>
 
         <ScrollView>
+          {/* Product afbeelding - klikbaar om te vergroten */}
           <Pressable onPress={() => setImageOpen(true)}>
             <Image
               source={{ uri: product.thumbnail }}
@@ -94,6 +107,8 @@ export default function ProductDetailScreen() {
               Tap image to enlarge
             </Text>
           </Pressable>
+
+          {/* Product info */}
           <View style={styles.content}>
             <Text style={[styles.title, { color: theme.text }]}>
               {product.title}
@@ -104,6 +119,8 @@ export default function ProductDetailScreen() {
             <Text style={[styles.description, { color: theme.textSecondary }]}>
               {product.description}
             </Text>
+
+            {/* Add to Cart knop - wordt groen na toevoegen */}
             <Pressable
               style={[
                 styles.button,
@@ -119,14 +136,17 @@ export default function ProductDetailScreen() {
         </ScrollView>
       </View>
 
+      {/* Modal voor vergrote afbeelding */}
       <Modal visible={imageOpen} transparent={true} animationType="fade">
         <View style={styles.modalContainer}>
+          {/* Sluit knop */}
           <Pressable
             style={styles.closeBtn}
             onPress={() => setImageOpen(false)}
           >
             <Text style={styles.closeBtnText}>✕</Text>
           </Pressable>
+          {/* Vergrote afbeelding */}
           <Image
             source={{ uri: product.thumbnail }}
             style={styles.modalImage}

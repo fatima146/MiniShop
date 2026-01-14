@@ -9,22 +9,27 @@ import {
 import { toggleTheme } from "../../src/features/theme/themeSlice";
 
 export default function ProfileScreen() {
+  // Router voor navigatie naar cart
   const router = useRouter();
+
+  // Redux: haal theme kleuren en mode op
   const theme = useAppSelector(selectTheme);
-  const themeMode = useAppSelector((state) => state.theme.mode);
+  const themeMode = useAppSelector((state) => state.theme.mode); // 'light' of 'dark'
   const dispatch = useAppDispatch();
-  const totalItems = useAppSelector(selectTotalItems);
-  const subtotal = useAppSelector(selectSubtotal);
+
+  // Redux: haal cart data op via selectors
+  const totalItems = useAppSelector(selectTotalItems); // Totaal aantal items in cart
+  const subtotal = useAppSelector(selectSubtotal); // Totaalprijs van cart
 
   return (
     <View style={[styles.container, { backgroundColor: theme.background }]}>
-      {/* Header met naam */}
+      {/* Header met student naam */}
       <View style={[styles.header, { backgroundColor: theme.primary }]}>
         <Text style={styles.name}>Fatima Salamova</Text>
         <Text style={styles.subtitle}>Effinia</Text>
       </View>
 
-      {/* Theme Toggle */}
+      {/* Theme Toggle kaart */}
       <View
         style={[
           styles.card,
@@ -38,9 +43,10 @@ export default function ProfileScreen() {
           <Text style={[styles.label, { color: theme.textSecondary }]}>
             Theme
           </Text>
+          {/* Toggle knop - wisselt tussen light en dark */}
           <Pressable
             style={[styles.toggleBtn, { backgroundColor: theme.primary }]}
-            onPress={() => dispatch(toggleTheme())}
+            onPress={() => dispatch(toggleTheme())} // Dispatch Redux action
           >
             <Text style={styles.toggleText}>
               {themeMode === "light" ? "☀️ Light" : "🌙 Dark"}
@@ -49,7 +55,8 @@ export default function ProfileScreen() {
         </View>
       </View>
 
-      {/* Cart Summary */}
+      {/* Cart Summary kaart - toont cross-tab proof */}
+      {/* Dit bewijst dat Redux werkt over alle tabs heen */}
       <View
         style={[
           styles.card,
@@ -59,6 +66,8 @@ export default function ProfileScreen() {
         <Text style={[styles.cardTitle, { color: theme.text }]}>
           Cart Summary
         </Text>
+
+        {/* Totaal items - gebruikt selector */}
         <View style={styles.row}>
           <Text style={[styles.label, { color: theme.textSecondary }]}>
             Total items
@@ -67,6 +76,8 @@ export default function ProfileScreen() {
             {totalItems}
           </Text>
         </View>
+
+        {/* Subtotaal - gebruikt selector */}
         <View style={styles.row}>
           <Text style={[styles.label, { color: theme.textSecondary }]}>
             Subtotal
@@ -75,6 +86,8 @@ export default function ProfileScreen() {
             € {subtotal.toFixed(2)}
           </Text>
         </View>
+
+        {/* Go to Cart knop - navigeert naar cart tab */}
         <Pressable
           style={[styles.button, { backgroundColor: theme.primary }]}
           onPress={() => router.push("/cart")}

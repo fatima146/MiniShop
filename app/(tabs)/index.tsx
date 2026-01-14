@@ -17,12 +17,21 @@ import { addToCart } from "../../src/features/cart/cartSlice";
 import { Product } from "../../src/types/product";
 
 export default function HomeScreen() {
+  // Router voor navigatie naar product detail
   const router = useRouter();
+
+  // Redux: haal theme kleuren op
   const theme = useAppSelector(selectTheme);
   const dispatch = useAppDispatch();
+
+  // TanStack Query: haal producten op van API
+  // data = producten, isLoading = aan het laden, error = fout opgetreden
   const { data, isLoading, error } = useProducts();
+
+  // Lokale state: welk product is net toegevoegd (voor ✓ feedback)
   const [addedId, setAddedId] = useState<number | null>(null);
 
+  // LOADING STATE: spinner tonen tijdens laden
   if (isLoading) {
     return (
       <SafeAreaView
@@ -34,6 +43,7 @@ export default function HomeScreen() {
     );
   }
 
+  // ERROR STATE: foutmelding tonen als API faalt
   if (error) {
     return (
       <SafeAreaView
@@ -45,7 +55,9 @@ export default function HomeScreen() {
     );
   }
 
+  // Voeg product toe aan cart + toon feedback
   const handleAddToCart = (product: Product) => {
+    // Dispatch Redux action met product data
     dispatch(
       addToCart({
         id: product.id,
@@ -54,11 +66,15 @@ export default function HomeScreen() {
         thumbnail: product.thumbnail,
       })
     );
+    // Toon ✓ voor dit product
     setAddedId(product.id);
+    // Reset na 1 seconde (terug naar +)
     setTimeout(() => setAddedId(null), 1000);
   };
 
+  // Render functie voor elk product in de lijst
   const renderProduct = ({ item }: { item: Product }) => (
+    // Hele kaart is klikbaar - gaat naar product detail
     <Pressable
       style={[
         styles.card,
@@ -66,7 +82,10 @@ export default function HomeScreen() {
       ]}
       onPress={() => router.push(`/product/${item.id}`)}
     >
+      {/* Product afbeelding */}
       <Image source={{ uri: item.thumbnail }} style={styles.image} />
+
+      {/* Product info */}
       <View style={styles.info}>
         <Text style={[styles.title, { color: theme.text }]}>{item.title}</Text>
         <Text style={[styles.price, { color: theme.primary }]}>
@@ -76,6 +95,9 @@ export default function HomeScreen() {
           Tap to view details
         </Text>
       </View>
+
+      {/* Add to cart knop */}
+      {/* Wordt groen (success) met ✓ na toevoegen */}
       <Pressable
         style={[
           styles.addBtn,
@@ -91,11 +113,13 @@ export default function HomeScreen() {
     </Pressable>
   );
 
+  // NORMAL STATE: toon producten lijst
   return (
     <SafeAreaView
       style={[styles.container, { backgroundColor: theme.background }]}
-      edges={["top"]}
+      edges={["top"]} // Padding alleen bovenaan (voor notch/statusbar)
     >
+      {/* Header */}
       <View
         style={[
           styles.header,
@@ -106,10 +130,12 @@ export default function HomeScreen() {
           MiniShop
         </Text>
       </View>
+
+      {/* Producten lijst */}
       <FlatList
-        data={data?.products}
-        renderItem={renderProduct}
-        keyExtractor={(item) => item.id.toString()}
+        data={data?.products} // Array van producten
+        renderItem={renderProduct} // Hoe elk item eruitziet
+        keyExtractor={(item) => item.id.toString()} // Unieke key per item
       />
     </SafeAreaView>
   );
